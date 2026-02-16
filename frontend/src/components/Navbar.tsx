@@ -42,6 +42,12 @@ export default function Navbar() {
               Admin
             </Link>
             <Link
+              href="/ai-employee"
+              className="text-dark hover:text-rose-gold transition-colors duration-300 font-medium"
+            >
+              AI Employee
+            </Link>
+            <Link
               href="/cart"
               className="relative text-dark hover:text-rose-gold transition-colors duration-300"
             >
@@ -96,6 +102,7 @@ export default function Navbar() {
               <Link href="/" onClick={() => setMobileOpen(false)} className="block text-dark hover:text-rose-gold font-medium">Home</Link>
               <Link href="/shop" onClick={() => setMobileOpen(false)} className="block text-dark hover:text-rose-gold font-medium">Shop</Link>
               <Link href="/admin" onClick={() => setMobileOpen(false)} className="block text-dark hover:text-rose-gold font-medium">Admin</Link>
+              <Link href="/ai-employee" onClick={() => setMobileOpen(false)} className="block text-dark hover:text-rose-gold font-medium">AI Employee</Link>
               <Link href="/cart" onClick={() => setMobileOpen(false)} className="block text-dark hover:text-rose-gold font-medium">
                 Cart ({totalItems})
               </Link>
