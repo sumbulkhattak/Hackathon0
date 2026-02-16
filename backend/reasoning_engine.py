@@ -32,10 +32,13 @@ SKIP_FILES = {"README.md"}
 # Task type → Agent Skill file mapping
 SKILL_MAP = {
     "ORDER": "order_processing.md",
-    "INQUIRY": "inquiry_reply.md",
+    "INQUIRY": "respond_to_inquiry.md",
     "INVENTORY-ALERT": "inventory_monitor.md",
     "ESCALATION": "reasoning_engine.md",
     "FILE-UPLOAD": "reasoning_engine.md",
+    "EMAIL": "send_email.md",
+    "INVOICE": "generate_invoice.md",
+    "LISTING": "update_product_listing.md",
 }
 
 
@@ -68,6 +71,12 @@ def _detect_task_type(filename: str) -> str:
         return "ESCALATION"
     if filename.startswith("FILE-UPLOAD"):
         return "FILE-UPLOAD"
+    if filename.startswith("EMAIL-"):
+        return "EMAIL"
+    if filename.startswith("INVOICE-"):
+        return "INVOICE"
+    if filename.startswith("LISTING-"):
+        return "LISTING"
     return "UNKNOWN"
 
 
