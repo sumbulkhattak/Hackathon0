@@ -25,6 +25,7 @@ MEMORY_DIR = VAULT_PATH / "Memory"
 TEMPLATES_DIR = VAULT_PATH / "Templates"
 CONFIG_DIR = VAULT_PATH / "Config"
 ARCHIVE_DIR = VAULT_PATH / "Archive"
+INCOMING_FILES_DIR = VAULT_PATH / "Incoming_Files"
 
 # ── Queue name → path mapping ─────────────────────────────────────────────────
 QUEUE_DIRS = {
@@ -46,6 +47,6 @@ def ensure_vault_dirs():
         NEEDS_ACTION_DIR, PENDING_APPROVAL_DIR, APPROVED_DIR, REJECTED_DIR,
         PLANS_DIR, LOGS_DIR, AUDIT_DIR, MEMORY_DIR,
         MEMORY_DIR / "Clients", MEMORY_DIR / "Finance", MEMORY_DIR / "Projects",
-        TEMPLATES_DIR, CONFIG_DIR, ARCHIVE_DIR,
+        TEMPLATES_DIR, CONFIG_DIR, ARCHIVE_DIR, INCOMING_FILES_DIR,
     ]:
         d.mkdir(parents=True, exist_ok=True)

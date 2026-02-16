@@ -5,3 +5,4 @@ pydantic
 python-multipart
 anthropic
 python-dotenv
+watchdog
