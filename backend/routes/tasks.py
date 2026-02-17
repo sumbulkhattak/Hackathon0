@@ -1,4 +1,4 @@
-"""Task Queue Routes — 7 endpoints for the 4-stage pipeline."""
+"""Task Queue Routes — 8 endpoints for the 6-stage HITL pipeline."""
 
 import logging
 from datetime import datetime, timezone
@@ -8,15 +8,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
-from schemas import TaskApproval, TaskRejection
+from schemas import TaskApproval, TaskRejection, TaskExecution
 from services import vault, audit
 from services.ai_processor import process_task
+from services.task_executor import execute_task
+from services.approval_guard import get_required_status, ApprovalGuardError
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["Tasks"])
 
-VALID_QUEUES = ["Needs_Action", "Pending_Approval", "Approved", "Rejected", "Plans"]
+VALID_QUEUES = ["Needs_Action", "Pending_Approval", "Approved", "Executing", "Rejected", "Archived", "Plans"]
 
 
 # ── GET /api/tasks — List all tasks ──────────────────────────────────────────
@@ -94,6 +96,40 @@ async def process_task_endpoint(task_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
 
     # Refresh dashboard
+    _refresh_dashboard()
+
+    return result
+
+
+# ── POST /api/tasks/{task_id}/execute — Execute an approved task ─────────
+
+@router.post("/tasks/{task_id}/execute")
+async def execute_task_endpoint(task_id: str, body: TaskExecution):
+    """Execute an approved task — moves through Executing to Archived."""
+    # Verify task exists in Approved
+    try:
+        content = vault.read_task_file("Approved", task_id)
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Task not found in Approved: {task_id}",
+        )
+
+    # Guard: verify status is APPROVED
+    metadata = vault.parse_task_metadata(content)
+    current_status = metadata.get("Status", "UNKNOWN")
+    required = get_required_status("execute")
+    if current_status not in required:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Cannot execute task with status '{current_status}'. Required: {required}",
+        )
+
+    try:
+        result = execute_task(task_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Execution failed: {str(e)}")
+
     _refresh_dashboard()
 
     return result

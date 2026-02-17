@@ -137,6 +137,11 @@ class TaskRejection(BaseModel):
     reprocess: bool = False
 
 
+class TaskExecution(BaseModel):
+    executed_by: str
+    notes: Optional[str] = None
+
+
 class ProcessingResult(BaseModel):
     status: str
     task_type: str
