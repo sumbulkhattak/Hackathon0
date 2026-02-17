@@ -86,6 +86,17 @@ export async function reprocessTask(taskId: string): Promise<unknown> {
   });
 }
 
+export async function executeTask(
+  taskId: string,
+  executedBy: string,
+  notes?: string
+): Promise<unknown> {
+  return fetchAI(`/api/tasks/${encodeURIComponent(taskId)}/execute`, {
+    method: "POST",
+    body: JSON.stringify({ executed_by: executedBy, notes }),
+  });
+}
+
 export async function deleteTask(
   taskId: string,
   queue: string

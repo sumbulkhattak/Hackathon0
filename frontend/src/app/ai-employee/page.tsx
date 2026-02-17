@@ -10,6 +10,7 @@ import {
   approveTask,
   rejectTask,
   reprocessTask,
+  executeTask,
   deleteTask,
   getAuditEntries,
   getMemoryClients,
@@ -40,7 +41,7 @@ const BRAND = {
   dark: "#2D2D2D",
 };
 
-const QUEUES = ["Needs_Action", "Pending_Approval", "Approved", "Rejected", "Plans"] as const;
+const QUEUES = ["Needs_Action", "Pending_Approval", "Approved", "Rejected", "Executing", "Archived", "Plans"] as const;
 
 const tabs: { key: Tab; icon: string; label: string }[] = [
   { key: "overview", icon: "📊", label: "Overview" },
@@ -188,7 +189,7 @@ export default function AIEmployeePage() {
   // ── Task actions ──
 
   const handleTaskAction = async (
-    action: "process" | "approve" | "reject" | "reprocess" | "delete",
+    action: "process" | "approve" | "reject" | "reprocess" | "execute" | "delete",
     task: TaskSummary
   ) => {
     setActionLoading(task.filename);
@@ -205,6 +206,9 @@ export default function AIEmployeePage() {
           break;
         case "reprocess":
           await reprocessTask(task.filename);
+          break;
+        case "execute":
+          await executeTask(task.filename, "admin");
           break;
         case "delete":
           await deleteTask(task.filename, task.queue);
@@ -598,6 +602,16 @@ export default function AIEmployeePage() {
                               />
                             </>
                           )}
+                          {task.queue === "Approved" && (
+                            <ActionBtn
+                              label="Execute"
+                              color="bg-emerald-600 hover:bg-emerald-700"
+                              loading={actionLoading === task.filename}
+                              onClick={() =>
+                                handleTaskAction("execute", task)
+                              }
+                            />
+                          )}
                           {task.queue === "Rejected" && (
                             <>
                               <ActionBtn
@@ -617,6 +631,16 @@ export default function AIEmployeePage() {
                                 }
                               />
                             </>
+                          )}
+                          {task.queue === "Executing" && (
+                            <span className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-medium animate-pulse">
+                              Executing...
+                            </span>
+                          )}
+                          {task.queue === "Archived" && (
+                            <span className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                              Completed
+                            </span>
                           )}
                           <button
                             onClick={() => openSlideOver(task.filename)}
@@ -950,6 +974,8 @@ function AIStatusBadge({ status }: { status: string }) {
     PENDING_APPROVAL: "bg-blue-50 text-blue-700 border-blue-200",
     APPROVED: "bg-green-50 text-green-700 border-green-200",
     REJECTED: "bg-red-50 text-red-700 border-red-200",
+    EXECUTING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    ARCHIVED: "bg-gray-50 text-gray-700 border-gray-200",
     ACTIVE: "bg-green-50 text-green-700 border-green-200",
     COMPLETED: "bg-green-50 text-green-700 border-green-200",
     ERROR: "bg-red-50 text-red-700 border-red-200",
