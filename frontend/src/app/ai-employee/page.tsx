@@ -19,6 +19,9 @@ import {
   getMemoryFinanceFile,
   getMemoryProjects,
   getMemoryProject,
+  getEcommerceStats,
+  triggerProduct,
+  triggerPriceUpdate,
 } from "@/lib/ai-api";
 import type {
   DashboardResponse,
@@ -28,7 +31,7 @@ import type {
   MemoryFile,
 } from "@/lib/ai-types";
 
-type Tab = "overview" | "tasks" | "activity" | "memory";
+type Tab = "overview" | "tasks" | "activity" | "memory" | "ecommerce";
 type MemoryTab = "clients" | "finance" | "projects";
 
 const BRAND = {
@@ -48,6 +51,7 @@ const tabs: { key: Tab; icon: string; label: string }[] = [
   { key: "tasks", icon: "📋", label: "Task Queue" },
   { key: "activity", icon: "📜", label: "Activity Log" },
   { key: "memory", icon: "🧠", label: "Memory" },
+  { key: "ecommerce", icon: "🛍️", label: "E-Commerce" },
 ];
 
 // ════════════════════════════════════════════════════════════════
@@ -85,6 +89,17 @@ export default function AIEmployeePage() {
   const [memContent, setMemContent] = useState("");
   const [memSelected, setMemSelected] = useState("");
   const [memLoading, setMemLoading] = useState(false);
+
+  // ── E-Commerce state ──
+  const [ecomStats, setEcomStats] = useState<{
+    products: { total: number; low_stock: number; out_of_stock: number };
+    orders: { total: number; pending: number; completed: number; revenue: number };
+    inquiries: { pending: number; awaiting_response: number };
+  } | null>(null);
+  const [ecomLoading, setEcomLoading] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [showPriceForm, setShowPriceForm] = useState(false);
+  const [triggerLoading, setTriggerLoading] = useState(false);
 
   // ── Data loaders ──
 
@@ -168,6 +183,18 @@ export default function AIEmployeePage() {
     }
   };
 
+  const loadEcomStats = useCallback(async () => {
+    setEcomLoading(true);
+    try {
+      const data = await getEcommerceStats();
+      setEcomStats(data);
+    } catch {
+      /* silent */
+    } finally {
+      setEcomLoading(false);
+    }
+  }, []);
+
   // ── Effects ──
 
   useEffect(() => {
@@ -185,6 +212,10 @@ export default function AIEmployeePage() {
   useEffect(() => {
     if (tab === "memory") loadMemoryList();
   }, [tab, loadMemoryList]);
+
+  useEffect(() => {
+    if (tab === "ecommerce") loadEcomStats();
+  }, [tab, loadEcomStats]);
 
   // ── Task actions ──
 
@@ -230,6 +261,47 @@ export default function AIEmployeePage() {
       setSlideOpen(true);
     } catch {
       /* silent */
+    }
+  };
+
+  const handleTriggerProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setTriggerLoading(true);
+    try {
+      const form = new FormData(e.currentTarget);
+      await triggerProduct({
+        name: form.get("name") as string,
+        description: form.get("description") as string,
+        price: Number(form.get("price")),
+        category_id: Number(form.get("category_id")),
+        stock: Number(form.get("stock")) || 50,
+        featured: form.get("featured") === "on",
+      });
+      setShowProductForm(false);
+      loadEcomStats();
+    } catch {
+      /* silent */
+    } finally {
+      setTriggerLoading(false);
+    }
+  };
+
+  const handleTriggerPriceUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setTriggerLoading(true);
+    try {
+      const form = new FormData(e.currentTarget);
+      await triggerPriceUpdate({
+        product_id: Number(form.get("product_id")),
+        new_price: Number(form.get("new_price")),
+        reason: form.get("reason") as string,
+      });
+      setShowPriceForm(false);
+      loadEcomStats();
+    } catch {
+      /* silent */
+    } finally {
+      setTriggerLoading(false);
     }
   };
 
@@ -515,7 +587,7 @@ export default function AIEmployeePage() {
                   className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30"
                 >
                   <option value="">All Types</option>
-                  {["ORDER", "INQUIRY", "ALERT", "REPORT"].map((t) => (
+                  {["ORDER", "INQUIRY", "PRODUCT-ADD", "PRICE-UPDATE", "ALERT", "REPORT", "INVENTORY-ALERT"].map((t) => (
                     <option key={t} value={t}>
                       {t}
                     </option>
@@ -858,6 +930,185 @@ export default function AIEmployeePage() {
                   </ChartCard>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* ═══════════ E-COMMERCE ═══════════ */}
+          {tab === "ecommerce" && (
+            <motion.div
+              key="ecommerce"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {/* Trigger Buttons */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <button
+                  onClick={() => setShowProductForm(!showProductForm)}
+                  className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors flex items-center gap-2"
+                >
+                  + Add Product
+                </button>
+                <button
+                  onClick={() => setShowPriceForm(!showPriceForm)}
+                  className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors flex items-center gap-2"
+                >
+                  + Update Price
+                </button>
+                <button
+                  onClick={loadEcomStats}
+                  className="px-4 py-2 text-sm font-medium bg-rose-gold text-white rounded-xl hover:bg-rose-gold/90 transition-colors"
+                >
+                  Refresh
+                </button>
+              </div>
+
+              {/* Add Product Form */}
+              {showProductForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 mb-6"
+                >
+                  <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg mb-4">
+                    Add New Product
+                  </h3>
+                  <form onSubmit={handleTriggerProduct} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input name="name" placeholder="Product Name" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="price" type="number" placeholder="Price (₹)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="description" placeholder="Description" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30 sm:col-span-2" />
+                    <input name="category_id" type="number" placeholder="Category ID" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="stock" type="number" placeholder="Stock (default 50)" className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <label className="flex items-center gap-2 text-sm text-dark/70">
+                      <input name="featured" type="checkbox" className="rounded" />
+                      Featured
+                    </label>
+                    <div className="sm:col-span-2 flex gap-3">
+                      <button type="submit" disabled={triggerLoading} className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50">
+                        {triggerLoading ? "Creating..." : "Create Task"}
+                      </button>
+                      <button type="button" onClick={() => setShowProductForm(false)} className="px-4 py-2 text-sm font-medium text-dark/50 border border-blush rounded-xl hover:bg-beige/50 transition-colors">
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+
+              {/* Price Update Form */}
+              {showPriceForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 mb-6"
+                >
+                  <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg mb-4">
+                    Update Price
+                  </h3>
+                  <form onSubmit={handleTriggerPriceUpdate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input name="product_id" type="number" placeholder="Product ID" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="new_price" type="number" placeholder="New Price (₹)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="reason" placeholder="Reason for change" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30 sm:col-span-2" />
+                    <div className="sm:col-span-2 flex gap-3">
+                      <button type="submit" disabled={triggerLoading} className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50">
+                        {triggerLoading ? "Updating..." : "Create Task"}
+                      </button>
+                      <button type="button" onClick={() => setShowPriceForm(false)} className="px-4 py-2 text-sm font-medium text-dark/50 border border-blush rounded-xl hover:bg-beige/50 transition-colors">
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+
+              {/* Stats Widgets */}
+              {ecomLoading ? (
+                <LoadingSpinner />
+              ) : ecomStats ? (
+                <>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                    <StatCard
+                      label="Total Products"
+                      value={String(ecomStats.products.total)}
+                      subtitle="In catalog"
+                      icon="📦"
+                      trend={ecomStats.products.low_stock > 0 ? `${ecomStats.products.low_stock} low stock` : "All stocked"}
+                      trendUp={ecomStats.products.low_stock === 0}
+                      gradient="from-purple-50/40 to-violet-50/20"
+                      iconBg="bg-purple-100"
+                    />
+                    <StatCard
+                      label="Total Orders"
+                      value={String(ecomStats.orders.total)}
+                      subtitle={`${ecomStats.orders.pending} pending`}
+                      icon="🛒"
+                      trend={ecomStats.orders.pending > 0 ? `${ecomStats.orders.pending} pending` : "All clear"}
+                      trendUp={ecomStats.orders.pending === 0}
+                      gradient="from-blue-50/40 to-indigo-50/20"
+                      iconBg="bg-blue-100"
+                    />
+                    <StatCard
+                      label="Revenue"
+                      value={`₹${ecomStats.orders.revenue.toLocaleString()}`}
+                      subtitle="Total revenue"
+                      icon="💰"
+                      trend={`${ecomStats.orders.completed} completed`}
+                      trendUp={true}
+                      gradient="from-green-50/40 to-emerald-50/20"
+                      iconBg="bg-green-100"
+                    />
+                    <StatCard
+                      label="Inquiries"
+                      value={String(ecomStats.inquiries.pending)}
+                      subtitle="Awaiting response"
+                      icon="💬"
+                      trend={ecomStats.inquiries.pending > 0 ? `${ecomStats.inquiries.pending} pending` : "All replied"}
+                      trendUp={ecomStats.inquiries.pending === 0}
+                      gradient="from-orange-50/40 to-amber-50/20"
+                      iconBg="bg-orange-100"
+                    />
+                  </div>
+
+                  {/* Detail Cards */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <ChartCard title="Product Inventory" subtitle="Stock status overview">
+                      <div className="space-y-3">
+                        {[
+                          { label: "Total Products", value: ecomStats.products.total, color: "text-dark" },
+                          { label: "Low Stock (<10)", value: ecomStats.products.low_stock, color: "text-amber-600" },
+                          { label: "Out of Stock", value: ecomStats.products.out_of_stock, color: "text-red-600" },
+                        ].map((m) => (
+                          <div key={m.label} className="flex items-center justify-between py-2 border-b border-blush/30 last:border-0">
+                            <span className="text-sm text-dark/50">{m.label}</span>
+                            <span className={`text-sm font-semibold ${m.color}`}>{m.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </ChartCard>
+
+                    <ChartCard title="Order Summary" subtitle="Current order status">
+                      <div className="space-y-3">
+                        {[
+                          { label: "Total Orders", value: ecomStats.orders.total, color: "text-dark" },
+                          { label: "Pending", value: ecomStats.orders.pending, color: "text-amber-600" },
+                          { label: "Completed", value: ecomStats.orders.completed, color: "text-green-600" },
+                          { label: "Total Revenue", value: `₹${ecomStats.orders.revenue.toLocaleString()}`, color: "text-emerald-600" },
+                        ].map((m) => (
+                          <div key={m.label} className="flex items-center justify-between py-2 border-b border-blush/30 last:border-0">
+                            <span className="text-sm text-dark/50">{m.label}</span>
+                            <span className={`text-sm font-semibold ${m.color}`}>{m.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </ChartCard>
+                  </div>
+                </>
+              ) : (
+                <EmptyState icon="🛍️" message="Could not load e-commerce stats. Is the backend running?" />
+              )}
             </motion.div>
           )}
         </AnimatePresence>

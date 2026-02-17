@@ -157,3 +157,38 @@ export async function getMemoryProject(
 ): Promise<MemoryContentResponse> {
   return fetchAI(`/api/memory/projects/${encodeURIComponent(slug)}`);
 }
+
+// ── E-Commerce ──
+
+export async function triggerProduct(data: {
+  name: string;
+  description: string;
+  price: number;
+  category_id: number;
+  stock?: number;
+  featured?: boolean;
+}): Promise<unknown> {
+  return fetchAI("/trigger/product", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function triggerPriceUpdate(data: {
+  product_id: number;
+  new_price: number;
+  reason: string;
+}): Promise<unknown> {
+  return fetchAI("/trigger/price-update", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getEcommerceStats(): Promise<{
+  products: { total: number; low_stock: number; out_of_stock: number };
+  orders: { total: number; pending: number; completed: number; revenue: number };
+  inquiries: { pending: number; awaiting_response: number };
+}> {
+  return fetchAI("/api/ecommerce/stats");
+}
