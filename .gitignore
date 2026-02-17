@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.pytest_cache/
+
+# Environment
+.env
+*.env
+
+# Database
+*.db
+
+# Screenshots
+ai-employee-screenshot.png
+
+# Backend working dirs
+backend/Needs_Action/
