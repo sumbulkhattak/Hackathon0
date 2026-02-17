@@ -61,6 +61,8 @@ def _build_system_prompt(task_type: str) -> str:
         "ORDER": "order_processing.md",
         "INQUIRY": "inquiry_reply.md",
         "INVENTORY-ALERT": "inventory_monitor.md",
+        "PRODUCT-ADD": "update_product_listing.md",
+        "PRICE-UPDATE": "update_product_listing.md",
     }
     skill_file = skill_map.get(task_type, "")
     skill_content = vault.read_agent_skill(skill_file) if skill_file else ""
@@ -95,6 +97,10 @@ def _detect_task_type(filename: str) -> str:
         return "INVENTORY-ALERT"
     elif filename.startswith("ESCALATION-"):
         return "ESCALATION"
+    elif filename.startswith("PRODUCT-ADD"):
+        return "PRODUCT-ADD"
+    elif filename.startswith("PRICE-UPDATE"):
+        return "PRICE-UPDATE"
     return "UNKNOWN"
 
 
@@ -170,6 +176,10 @@ def process_task(filename: str, db: Session) -> dict:
             result = process_inventory_task(filename, db)
         elif task_type == "ESCALATION":
             result = process_escalation_task(filename, db)
+        elif task_type == "PRODUCT-ADD":
+            result = process_product_task(filename, db)
+        elif task_type == "PRICE-UPDATE":
+            result = process_price_update_task(filename, db)
         else:
             raise ValueError(f"Unknown task type: {task_type} (file: {filename})")
 
@@ -586,4 +596,160 @@ def process_escalation_task(filename: str, db: Session) -> dict:
         "filename": filename,
         "moved_to": "Pending_Approval",
         "note": "No AI processing — requires human review",
+    }
+
+
+# ── Product Add Processor ──────────────────────────────────────────────────
+
+def process_product_task(filename: str, db: Session) -> dict:
+    """Process a PRODUCT-ADD task: validate details and draft listing plan."""
+    content = vault.read_task_file("Needs_Action", filename)
+    metadata = vault.parse_task_metadata(content)
+
+    system_prompt = _build_system_prompt("PRODUCT-ADD")
+    user_prompt = f"""Review this product addition request. Generate:
+1. Validation check (name, description, pricing against handbook rules)
+2. SEO-friendly product listing draft
+3. Category verification
+4. Any concerns or flags
+
+Here is the task file:
+
+{content}
+"""
+
+    ai_response = _call_claude(system_prompt, user_prompt)
+
+    # Build queued action args
+    price_str = metadata.get("Price", "0").replace("\u20b9", "").replace(",", "").strip()
+    try:
+        price_val = float(price_str)
+    except ValueError:
+        price_val = 0
+
+    updated_content = content + f"""
+
+---
+
+## AI Processing Output
+
+**Processed:** {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Model:** {config.CLAUDE_MODEL}
+
+{ai_response}
+
+## Queued Actions
+
+| # | Server | Tool | Args | Status |
+|---|--------|------|------|--------|
+| 1 | catalog | create_product | {{"name": "{metadata.get('Product Name', '')}", "description": "{metadata.get('Description', '')}", "price": {price_val}, "category_id": {metadata.get('Category ID', '1')}, "stock": {metadata.get('Stock', '50')}}} | PENDING |
+
+## Status: PROCESSED
+"""
+
+    vault.write_task_file("Needs_Action", filename, updated_content)
+    vault.move_task_file(filename, "Needs_Action", "Pending_Approval")
+
+    audit.write_audit_entry(
+        source="ai-processor/product",
+        action="task.processed",
+        entity_type="product",
+        entity_id=filename,
+        details={"product_name": metadata.get("Product Name", "")},
+        queue="Pending_Approval",
+        status="PROCESSED",
+    )
+    audit.append_daily_log(
+        source="ai-processor/product",
+        action="Task Processed",
+        details=f"{filename} — Product: {metadata.get('Product Name', 'Unknown')}",
+        status="PROCESSED",
+    )
+
+    return {
+        "status": "processed",
+        "task_type": "PRODUCT-ADD",
+        "filename": filename,
+        "moved_to": "Pending_Approval",
+    }
+
+
+# ── Price Update Processor ─────────────────────────────────────────────────
+
+def process_price_update_task(filename: str, db: Session) -> dict:
+    """Process a PRICE-UPDATE task: validate against margin rules."""
+    content = vault.read_task_file("Needs_Action", filename)
+    metadata = vault.parse_task_metadata(content)
+
+    product_id = metadata.get("Product ID", "")
+    product = None
+    if product_id.isdigit():
+        product = db.query(Product).filter(Product.id == int(product_id)).first()
+
+    system_prompt = _build_system_prompt("PRICE-UPDATE")
+    user_prompt = f"""Review this pricing change request. Validate:
+1. New price vs handbook margin rules (minimum 30% margin)
+2. Comparison with current pricing tier
+3. Impact assessment
+4. Any flags or concerns
+
+Here is the task file:
+
+{content}
+"""
+    if product:
+        user_prompt += f"\nCurrent DB price: \u20b9{product.price:,.0f}, Stock: {product.stock}"
+
+    ai_response = _call_claude(system_prompt, user_prompt)
+
+    new_price_str = metadata.get("New Price", "0").replace("\u20b9", "").replace(",", "").strip()
+    try:
+        new_price_val = float(new_price_str)
+    except ValueError:
+        new_price_val = 0
+
+    updated_content = content + f"""
+
+---
+
+## AI Processing Output
+
+**Processed:** {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Model:** {config.CLAUDE_MODEL}
+
+{ai_response}
+
+## Queued Actions
+
+| # | Server | Tool | Args | Status |
+|---|--------|------|------|--------|
+| 1 | catalog | update_price | {{"id": {product_id}, "new_price": {new_price_val}, "reason": "{metadata.get('Reason', '')}"}} | PENDING |
+
+## Status: PROCESSED
+"""
+
+    vault.write_task_file("Needs_Action", filename, updated_content)
+    vault.move_task_file(filename, "Needs_Action", "Pending_Approval")
+
+    audit.write_audit_entry(
+        source="ai-processor/price-update",
+        action="task.processed",
+        entity_type="product",
+        entity_id=filename,
+        details={"product_id": product_id, "product_name": metadata.get("Product Name", ""), "new_price": new_price_str},
+        queue="Pending_Approval",
+        status="PROCESSED",
+    )
+    audit.append_daily_log(
+        source="ai-processor/price-update",
+        action="Task Processed",
+        details=f"{filename} — {metadata.get('Product Name', 'Unknown')}: \u20b9{metadata.get('Current Price', '?')} \u2192 \u20b9{metadata.get('New Price', '?')}",
+        status="PROCESSED",
+    )
+
+    return {
+        "status": "processed",
+        "task_type": "PRICE-UPDATE",
+        "filename": filename,
+        "moved_to": "Pending_Approval",
     }
