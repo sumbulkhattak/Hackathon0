@@ -15,6 +15,7 @@ from routes.tasks import router as tasks_router
 from routes.dashboard import router as dashboard_router
 from routes.memory import router as memory_router
 from routes.audit import router as audit_router
+from routes.ecommerce import router as ecommerce_router
 from seed import seed_database
 
 logging.basicConfig(level=logging.INFO)
@@ -71,3 +72,4 @@ app.include_router(tasks_router)
 app.include_router(dashboard_router)
 app.include_router(memory_router)
 app.include_router(audit_router)
+app.include_router(ecommerce_router)
