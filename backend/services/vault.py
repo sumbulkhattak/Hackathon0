@@ -165,7 +165,9 @@ def update_dashboard(
 | Needs Action | {queue_counts.get('Needs_Action', 0)} | — |
 | Pending Approval | {queue_counts.get('Pending_Approval', 0)} | — |
 | Approved | {queue_counts.get('Approved', 0)} | — |
+| Executing | {queue_counts.get('Executing', 0)} | — |
 | Rejected | {queue_counts.get('Rejected', 0)} | — |
+| Archived | {queue_counts.get('Archived', 0)} | — |
 
 ---
 
