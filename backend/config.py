@@ -44,6 +44,10 @@ QUEUE_DIRS = {
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
 
+# ── Ralph Wiggum Loop ───────────────────────────────────────────────────────
+POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "30"))      # seconds
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "5"))
+
 # ── Ensure all directories exist ──────────────────────────────────────────────
 def ensure_vault_dirs():
     """Create all vault directories if they don't exist."""
