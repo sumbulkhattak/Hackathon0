@@ -92,11 +92,13 @@ def _run_action(task_type: str, content: str, filename: str) -> dict:
             for action in actions:
                 server = mcp_registry.get_server(action["server"], db)
                 if hasattr(server, "execute_action"):
-                    result = server.execute_action(action)
+                    exec_payload = {"action": action["tool"], "args": action["args"]}
+                    result = server.execute_action(exec_payload)
                 else:
                     result = server.call_tool(action["tool"], action["args"])
                 results.append({"tool": action["tool"], "result": result})
-                logger.info(f"[EXECUTOR] MCP {action['server']}.{action['tool']} → {result.get('status', 'ok')}")
+                status = result.get("status", "ok") if isinstance(result, dict) else "ok"
+                logger.info(f"[EXECUTOR] MCP {action['server']}.{action['tool']} → {status}")
             return {
                 "steps_completed": len(results),
                 "executed_at": now,
