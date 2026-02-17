@@ -4,6 +4,7 @@ import logging
 import re
 from datetime import datetime, timezone
 from typing import Optional
+import json
 
 import config
 from services.task_mover import move_task
@@ -25,6 +26,32 @@ EXECUTOR_MAP = {
     "INVOICE":   "_execute_invoice",
     "ESCALATION": "_execute_escalation",
 }
+
+
+def parse_queued_actions(content: str) -> list[dict]:
+    """Parse the Queued Actions table from a task file."""
+    actions = []
+    in_table = False
+    for line in content.split("\n"):
+        if "## Queued Actions" in line:
+            in_table = True
+            continue
+        if in_table and line.startswith("|") and not line.startswith("| #") and not line.startswith("|---"):
+            parts = [p.strip() for p in line.split("|")[1:-1]]
+            if len(parts) >= 5 and parts[0].isdigit():
+                try:
+                    args = json.loads(parts[3])
+                except (json.JSONDecodeError, IndexError):
+                    args = {}
+                actions.append({
+                    "server": parts[1],
+                    "tool": parts[2],
+                    "args": args,
+                    "status": parts[4],
+                })
+        elif in_table and line.startswith("##") and "Queued Actions" not in line:
+            break
+    return actions
 
 
 def _detect_type(filename: str) -> str:
@@ -50,12 +77,35 @@ def _move(filename: str, from_queue: str, to_queue: str, **kwargs) -> str:
 
 
 def _run_action(task_type: str, content: str, filename: str) -> dict:
-    """
-    Execute the actual action for a task type.
-    Placeholder — real implementations will send emails, update DBs, etc.
-    """
+    """Execute the action for a task — uses MCP servers if queued actions exist."""
     now = datetime.now(timezone.utc).isoformat()
     logger.info(f"[EXECUTOR] Running action for {task_type}: {filename}")
+
+    # Check for MCP queued actions
+    actions = parse_queued_actions(content)
+    if actions:
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            import mcp as mcp_registry
+            results = []
+            for action in actions:
+                server = mcp_registry.get_server(action["server"], db)
+                if hasattr(server, "execute_action"):
+                    result = server.execute_action(action)
+                else:
+                    result = server.call_tool(action["tool"], action["args"])
+                results.append({"tool": action["tool"], "result": result})
+                logger.info(f"[EXECUTOR] MCP {action['server']}.{action['tool']} → {result.get('status', 'ok')}")
+            return {
+                "steps_completed": len(results),
+                "executed_at": now,
+                "action": "mcp_execution",
+                "results": results,
+            }
+        finally:
+            db.close()
+
     return {
         "steps_completed": 1,
         "executed_at": now,
