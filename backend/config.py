@@ -9,11 +9,13 @@ load_dotenv(Path(__file__).parent / ".env")
 # ── Vault root ────────────────────────────────────────────────────────────────
 VAULT_PATH = Path(os.getenv("VAULT_PATH", "../AI_Employee")).resolve()
 
-# ── Queue directories (4-stage pipeline) ──────────────────────────────────────
+# ── Queue directories (6-stage pipeline) ──────────────────────────────────────
 NEEDS_ACTION_DIR = VAULT_PATH / "Needs_Action"
 PENDING_APPROVAL_DIR = VAULT_PATH / "Pending_Approval"
 APPROVED_DIR = VAULT_PATH / "Approved"
 REJECTED_DIR = VAULT_PATH / "Rejected"
+EXECUTING_DIR = VAULT_PATH / "Executing"
+ARCHIVED_DIR  = VAULT_PATH / "Archived"
 
 # ── Other vault directories ───────────────────────────────────────────────────
 PLANS_DIR = VAULT_PATH / "Plans"
@@ -33,6 +35,8 @@ QUEUE_DIRS = {
     "Pending_Approval": PENDING_APPROVAL_DIR,
     "Approved": APPROVED_DIR,
     "Rejected": REJECTED_DIR,
+    "Executing": EXECUTING_DIR,
+    "Archived": ARCHIVED_DIR,
     "Plans": PLANS_DIR,
 }
 
@@ -45,6 +49,7 @@ def ensure_vault_dirs():
     """Create all vault directories if they don't exist."""
     for d in [
         NEEDS_ACTION_DIR, PENDING_APPROVAL_DIR, APPROVED_DIR, REJECTED_DIR,
+        EXECUTING_DIR, ARCHIVED_DIR,
         PLANS_DIR, LOGS_DIR, AUDIT_DIR, MEMORY_DIR,
         MEMORY_DIR / "Clients", MEMORY_DIR / "Finance", MEMORY_DIR / "Projects",
         TEMPLATES_DIR, CONFIG_DIR, ARCHIVE_DIR, INCOMING_FILES_DIR,
