@@ -31,16 +31,16 @@ type Tab = "overview" | "orders" | "products" | "analytics";
 
 // ─── Brand colors ─────────────────────────────────────────────────────────────
 const BRAND = {
-  rose: "#B76E79",
-  roseDark: "#8B4F57",
-  roseLight: "#D4A0A7",
-  blush: "#F9E4E4",
-  beige: "#F5F0EB",
-  cream: "#FFF8F0",
-  dark: "#2D2D2D",
+  rose: "#C9A84C",
+  roseDark: "#A07B28",
+  roseLight: "#E8D48B",
+  blush: "#1A1A1A",
+  beige: "#151515",
+  cream: "#111111",
+  dark: "#1A1410",
 };
 
-const PIE_COLORS = ["#B76E79", "#D4A0A7", "#8B4F57", "#E8C4C8", "#F9E4E4", "#C78D96"];
+const PIE_COLORS = ["#C9A84C", "#E8D48B", "#A07B28", "#D4BF7A", "#8B6914", "#F0E0A0"];
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("overview");
@@ -176,10 +176,10 @@ export default function AdminPage() {
 
   const priceDistribution = useMemo(() => {
     const ranges = [
-      { range: "₹0-399", min: 0, max: 399, count: 0 },
-      { range: "₹400-699", min: 400, max: 699, count: 0 },
-      { range: "₹700-999", min: 700, max: 999, count: 0 },
-      { range: "₹1000+", min: 1000, max: Infinity, count: 0 },
+      { range: "Rs.0-399", min: 0, max: 399, count: 0 },
+      { range: "Rs.400-699", min: 400, max: 699, count: 0 },
+      { range: "Rs.700-999", min: 700, max: 999, count: 0 },
+      { range: "Rs.1000+", min: 1000, max: Infinity, count: 0 },
     ];
     products.forEach((p) => {
       const r = ranges.find((r) => p.price >= r.min && p.price <= r.max);
@@ -206,7 +206,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="bg-beige/30 min-h-screen">
+    <div className="bg-beige/30 min-h-screen pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -234,14 +234,14 @@ export default function AdminPage() {
         </motion.div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 mb-8 bg-white rounded-2xl p-1.5 shadow-[0_2px_12px_rgba(183,110,121,0.08)] w-fit">
+        <div className="flex gap-1 mb-8 bg-white rounded-2xl p-1.5 shadow-[0_2px_12px_rgba(201,168,76,0.08)] w-fit">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                 tab === t.key
-                  ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(183,110,121,0.3)]"
+                  ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(201,168,76,0.3)]"
                   : "text-dark/50 hover:text-dark hover:bg-beige/50"
               }`}
             >
@@ -265,7 +265,7 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <StatCard
                   label="Total Revenue"
-                  value={`₹${stats.total_revenue.toLocaleString("en-IN")}`}
+                  value={`Rs.${stats.total_revenue.toLocaleString("en-IN")}`}
                   subtitle="All time"
                   icon="💰"
                   trend="+12.5%"
@@ -318,25 +318,25 @@ export default function AdminPage() {
                             <stop offset="95%" stopColor={BRAND.rose} stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F5F0EB" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
                         <XAxis
                           dataKey="date"
-                          tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                          tick={{ fontSize: 12, fill: "#1A141080" }}
                           axisLine={false}
                           tickLine={false}
                         />
                         <YAxis
-                          tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                          tick={{ fontSize: 12, fill: "#1A141080" }}
                           axisLine={false}
                           tickLine={false}
-                          tickFormatter={(v) => `₹${v.toLocaleString()}`}
+                          tickFormatter={(v) => `Rs.${v.toLocaleString()}`}
                         />
                         <Tooltip
-                          formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
+                          formatter={(value) => [`Rs.${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
                           contentStyle={{
                             borderRadius: "12px",
                             border: "none",
-                            boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                            boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                             fontSize: "13px",
                           }}
                         />
@@ -379,7 +379,7 @@ export default function AdminPage() {
                           contentStyle={{
                             borderRadius: "12px",
                             border: "none",
-                            boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                            boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                             fontSize: "13px",
                           }}
                         />
@@ -400,7 +400,7 @@ export default function AdminPage() {
               {/* Recent Orders + Top Products Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Orders */}
-                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6">
+                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6">
                   <div className="flex justify-between items-center mb-5">
                     <div>
                       <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg">
@@ -446,7 +446,7 @@ export default function AdminPage() {
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-semibold text-dark">
-                              ₹{order.total.toLocaleString("en-IN")}
+                              Rs.{order.total.toLocaleString("en-IN")}
                             </p>
                             <StatusBadge status={order.status} />
                           </div>
@@ -457,7 +457,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Top Products */}
-                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6">
+                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6">
                   <div className="flex justify-between items-center mb-5">
                     <div>
                       <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg">
@@ -498,7 +498,7 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <p className="text-sm font-semibold text-rose-gold-dark">
-                            ₹{item.revenue.toLocaleString("en-IN")}
+                            Rs.{item.revenue.toLocaleString("en-IN")}
                           </p>
                         </motion.div>
                       ))}
@@ -542,11 +542,11 @@ export default function AdminPage() {
                           ))}
                         </Pie>
                         <Tooltip
-                          formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
+                          formatter={(value) => [`Rs.${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
                           contentStyle={{
                             borderRadius: "12px",
                             border: "none",
-                            boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                            boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                             fontSize: "13px",
                           }}
                         />
@@ -566,15 +566,15 @@ export default function AdminPage() {
                 <ChartCard title="Price Distribution" subtitle="Product count by price range">
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={priceDistribution} barSize={40}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F5F0EB" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
                       <XAxis
                         dataKey="name"
-                        tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                        tick={{ fontSize: 12, fill: "#1A141080" }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis
-                        tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                        tick={{ fontSize: 12, fill: "#1A141080" }}
                         axisLine={false}
                         tickLine={false}
                         allowDecimals={false}
@@ -583,7 +583,7 @@ export default function AdminPage() {
                         contentStyle={{
                           borderRadius: "12px",
                           border: "none",
-                          boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                          boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                           fontSize: "13px",
                         }}
                       />
@@ -597,17 +597,17 @@ export default function AdminPage() {
               <ChartCard title="Inventory Levels" subtitle="Current stock per product">
                 <ResponsiveContainer width="100%" height={350}>
                   <BarChart data={stockData} layout="vertical" barSize={16} margin={{ left: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#F5F0EB" horizontal={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" horizontal={false} />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                      tick={{ fontSize: 12, fill: "#1A141080" }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
-                      tick={{ fontSize: 11, fill: "#2D2D2D80" }}
+                      tick={{ fontSize: 11, fill: "#1A141080" }}
                       axisLine={false}
                       tickLine={false}
                       width={140}
@@ -620,7 +620,7 @@ export default function AdminPage() {
                       contentStyle={{
                         borderRadius: "12px",
                         border: "none",
-                        boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                        boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                         fontSize: "13px",
                       }}
                     />
@@ -637,15 +637,15 @@ export default function AdminPage() {
               <ChartCard title="Products per Category" subtitle="Category distribution">
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={categoryData} barSize={45}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#F5F0EB" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                      tick={{ fontSize: 12, fill: "#1A141080" }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 12, fill: "#2D2D2D80" }}
+                      tick={{ fontSize: 12, fill: "#1A141080" }}
                       axisLine={false}
                       tickLine={false}
                       allowDecimals={false}
@@ -654,7 +654,7 @@ export default function AdminPage() {
                       contentStyle={{
                         borderRadius: "12px",
                         border: "none",
-                        boxShadow: "0 4px 20px rgba(183,110,121,0.15)",
+                        boxShadow: "0 4px 20px rgba(201,168,76,0.15)",
                         fontSize: "13px",
                       }}
                     />
@@ -714,7 +714,7 @@ export default function AdminPage() {
               </div>
 
               {orders.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-12 text-center">
+                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-12 text-center">
                   <div className="text-5xl mb-4">📦</div>
                   <p className="text-dark/40">No orders yet. Orders will appear here once customers start shopping.</p>
                 </div>
@@ -726,7 +726,7 @@ export default function AdminPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 hover:shadow-[0_4px_24px_rgba(183,110,121,0.12)] transition-shadow duration-300"
+                      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 hover:shadow-[0_4px_24px_rgba(201,168,76,0.12)] transition-shadow duration-300"
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div className="flex gap-4">
@@ -761,7 +761,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex items-center gap-4 sm:ml-auto">
                           <span className="text-xl font-bold text-rose-gold-dark whitespace-nowrap">
-                            ₹{order.total.toLocaleString("en-IN")}
+                            Rs.{order.total.toLocaleString("en-IN")}
                           </span>
                           <select
                             value={order.status}
@@ -812,7 +812,7 @@ export default function AdminPage() {
                 />
                 <MiniStat
                   label="Total Value"
-                  value={`₹${products
+                  value={`Rs.${products
                     .reduce((sum, p) => sum + p.price * p.stock, 0)
                     .toLocaleString("en-IN")}`}
                   color="text-green-600"
@@ -820,7 +820,7 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] overflow-hidden">
+              <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -882,7 +882,7 @@ export default function AdminPage() {
                             </span>
                           </td>
                           <td className="py-4 px-4 text-sm font-semibold text-dark">
-                            ₹{product.price.toLocaleString("en-IN")}
+                            Rs.{product.price.toLocaleString("en-IN")}
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
@@ -971,7 +971,7 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 relative overflow-hidden group hover:shadow-[0_4px_24px_rgba(183,110,121,0.12)] transition-shadow duration-300`}
+      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 relative overflow-hidden group hover:shadow-[0_4px_24px_rgba(201,168,76,0.12)] transition-shadow duration-300`}
     >
       {/* Background gradient accent */}
       <div
@@ -1015,7 +1015,7 @@ function ChartCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 ${className}`}
+      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 ${className}`}
     >
       <div className="mb-4">
         <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg">
@@ -1069,7 +1069,7 @@ function MiniStat({
   isText?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-[0_1px_8px_rgba(183,110,121,0.05)] p-4 text-center">
+    <div className="bg-white rounded-xl shadow-[0_1px_8px_rgba(201,168,76,0.05)] p-4 text-center">
       <p className="text-xs text-dark/40 mb-1">{label}</p>
       <p className={`${isText ? "text-lg" : "text-2xl"} font-bold ${color}`}>
         {value}

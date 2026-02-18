@@ -40,7 +40,7 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="w-10 h-10 border-2 border-rose-gold border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -48,8 +48,8 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-2xl font-bold text-dark mb-4">Product Not Found</h2>
-        <Link href="/shop" className="text-rose-gold hover:underline">
+        <h2 className="text-2xl font-bold text-white mb-4">Product Not Found</h2>
+        <Link href="/shop" className="text-gold hover:underline">
           Back to Shop
         </Link>
       </div>
@@ -57,15 +57,15 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-dark min-h-screen pt-20">
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <nav className="text-sm text-dark/40">
-          <Link href="/" className="hover:text-rose-gold">Home</Link>
+        <nav className="text-sm text-white/40">
+          <Link href="/" className="hover:text-gold">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-rose-gold">Shop</Link>
+          <Link href="/shop" className="hover:text-gold">Shop</Link>
           <span className="mx-2">/</span>
-          <span className="text-dark">{product.name}</span>
+          <span className="text-white">{product.name}</span>
         </nav>
       </div>
 
@@ -78,7 +78,7 @@ export default function ProductDetailPage() {
             transition={{ duration: 0.6 }}
           >
             {/* Main Image */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-beige shadow-[0_4px_20px_rgba(183,110,121,0.1)] mb-4">
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-surface shadow-[0_4px_20px_rgba(201,168,76,0.1)] mb-4">
               <Image
                 src={
                   product.images?.length > 0
@@ -91,7 +91,7 @@ export default function ProductDetailPage() {
                 priority
               />
               {product.featured && (
-                <span className="absolute top-4 left-4 bg-rose-gold text-white text-sm px-4 py-1.5 rounded-full font-medium">
+                <span className="absolute top-4 left-4 bg-gold text-dark text-sm px-4 py-1.5 rounded-full font-medium">
                   Featured
                 </span>
               )}
@@ -106,7 +106,7 @@ export default function ProductDetailPage() {
                     onClick={() => setActiveImage(index)}
                     className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
                       activeImage === index
-                        ? "border-rose-gold shadow-[0_4px_20px_rgba(183,110,121,0.2)]"
+                        ? "border-gold shadow-[0_4px_20px_rgba(201,168,76,0.2)]"
                         : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                   >
@@ -129,20 +129,20 @@ export default function ProductDetailPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col justify-center"
           >
-            <p className="text-rose-gold font-medium uppercase tracking-widest text-sm mb-2">
+            <p className="text-gold font-medium uppercase tracking-widest text-sm mb-2">
               {product.category_name}
             </p>
 
-            <h1 className="text-3xl lg:text-4xl font-bold text-dark mb-4">
+            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
               {product.name}
             </h1>
 
-            <p className="text-dark/60 text-lg leading-relaxed mb-6">
+            <p className="text-white/60 text-lg leading-relaxed mb-6">
               {product.description}
             </p>
 
-            <div className="text-3xl font-bold text-rose-gold-dark mb-6">
-              ₹{product.price.toLocaleString("en-IN")}
+            <div className="text-3xl font-bold text-gold mb-6">
+              Rs.{product.price.toLocaleString("en-IN")}
             </div>
 
             {/* Stock Status */}
@@ -160,18 +160,18 @@ export default function ProductDetailPage() {
 
             {/* Quantity */}
             <div className="flex items-center gap-4 mb-8">
-              <span className="text-dark/60 font-medium">Quantity:</span>
-              <div className="flex items-center border border-blush rounded-full overflow-hidden">
+              <span className="text-white/60 font-medium">Quantity:</span>
+              <div className="flex items-center border border-gold/20 rounded-full overflow-hidden">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 text-dark hover:bg-blush transition-colors"
+                  className="px-4 py-2 text-white hover:bg-surface-hover transition-colors"
                 >
                   -
                 </button>
-                <span className="px-4 py-2 font-medium">{quantity}</span>
+                <span className="px-4 py-2 font-medium text-white">{quantity}</span>
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="px-4 py-2 text-dark hover:bg-blush transition-colors"
+                  className="px-4 py-2 text-white hover:bg-surface-hover transition-colors"
                 >
                   +
                 </button>
@@ -187,15 +187,15 @@ export default function ProductDetailPage() {
                   ? "bg-green-500 text-white"
                   : product.stock === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-rose-gold text-white hover:bg-rose-gold-dark shadow-[0_4px_20px_rgba(183,110,121,0.1)] hover:shadow-[0_8px_30px_rgba(183,110,121,0.2)]"
+                  : "bg-gold text-dark hover:bg-gold-light shadow-[0_4px_20px_rgba(201,168,76,0.1)] hover:shadow-[0_8px_30px_rgba(201,168,76,0.2)]"
               }`}
             >
               {added ? "Added to Cart!" : product.stock === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
 
             {/* Features */}
-            <div className="mt-10 pt-8 border-t border-blush">
-              <div className="grid grid-cols-3 gap-4 text-center text-sm text-dark/50">
+            <div className="mt-10 pt-8 border-t border-gold/20">
+              <div className="grid grid-cols-3 gap-4 text-center text-sm text-white/50">
                 <div>
                   <div className="text-2xl mb-1">🚚</div>
                   <p>Free Shipping</p>

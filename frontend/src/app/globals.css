@@ -2,15 +2,32 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-blush: #F9E4E4;
-  --color-rose-gold: #B76E79;
-  --color-rose-gold-light: #D4A0A7;
-  --color-rose-gold-dark: #8B4F57;
-  --color-beige: #F5F0EB;
-  --color-cream: #FFF8F0;
-  --color-dark: #2D2D2D;
-  --color-background: #ffffff;
-  --color-foreground: #2D2D2D;
+  /* ── Primary Gold Palette ── */
+  --color-gold: #C9A84C;
+  --color-gold-light: #E8D48B;
+  --color-gold-dark: #A07B28;
+
+  /* ── Warm Dark Palette (luxurious chocolate/brown-black) ── */
+  --color-surface: #231D17;
+  --color-surface-hover: #2E2620;
+  --color-dark: #1A1410;
+  --color-darker: #120E0A;
+  --color-subtle: #1E1812;
+  --color-background: #1A1410;
+  --color-foreground: #FFFFFF;
+
+  /* ── Cream/Warm Light (for contrast sections) ── */
+  --color-cream: #F5EDE0;
+  --color-cream-dark: #E8DDD0;
+
+  /* ── Legacy Aliases ── */
+  --color-blush: #231D17;
+  --color-rose-gold: #C9A84C;
+  --color-rose-gold-light: #E8D48B;
+  --color-rose-gold-dark: #A07B28;
+  --color-beige: #1E1812;
+
+  /* ── Typography ── */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Poppins', sans-serif;
 }
@@ -30,8 +47,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::selection {
-  background-color: #F9E4E4;
-  color: #8B4F57;
+  background-color: #C9A84C;
+  color: #1A1410;
 }
 
 /* Elegant scrollbar */
@@ -39,12 +56,12 @@ h1, h2, h3, h4, h5, h6 {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F5F0EB;
+  background: #1A1410;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4A0A7;
+  background: #A07B28;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B76E79;
+  background: #C9A84C;
 }

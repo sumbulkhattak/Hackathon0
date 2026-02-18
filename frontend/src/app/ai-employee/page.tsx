@@ -35,13 +35,13 @@ type Tab = "overview" | "tasks" | "activity" | "memory" | "ecommerce";
 type MemoryTab = "clients" | "finance" | "projects";
 
 const BRAND = {
-  rose: "#B76E79",
-  roseDark: "#8B4F57",
-  roseLight: "#D4A0A7",
-  blush: "#F9E4E4",
-  beige: "#F5F0EB",
-  cream: "#FFF8F0",
-  dark: "#2D2D2D",
+  rose: "#C9A84C",
+  roseDark: "#A07B28",
+  roseLight: "#E8D48B",
+  blush: "#1A1A1A",
+  beige: "#151515",
+  cream: "#111111",
+  dark: "#1A1410",
 };
 
 const QUEUES = ["Needs_Action", "Pending_Approval", "Approved", "Rejected", "Executing", "Archived", "Plans"] as const;
@@ -317,7 +317,7 @@ export default function AIEmployeePage() {
   // ════════════════════════════════════════════════════════════════
 
   return (
-    <div className="bg-beige/30 min-h-screen">
+    <div className="bg-beige/30 min-h-screen pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ── Header ── */}
         <motion.div
@@ -334,14 +334,14 @@ export default function AIEmployeePage() {
         </motion.div>
 
         {/* ── Tab Navigation ── */}
-        <div className="flex gap-1 mb-8 bg-white rounded-2xl p-1.5 shadow-[0_2px_12px_rgba(183,110,121,0.08)] w-fit overflow-x-auto">
+        <div className="flex gap-1 mb-8 bg-white rounded-2xl p-1.5 shadow-[0_2px_12px_rgba(201,168,76,0.08)] w-fit overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
                 tab === t.key
-                  ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(183,110,121,0.3)]"
+                  ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(201,168,76,0.3)]"
                   : "text-dark/50 hover:text-dark hover:bg-beige/50"
               }`}
             >
@@ -626,7 +626,7 @@ export default function AIEmployeePage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-5 hover:shadow-[0_4px_24px_rgba(183,110,121,0.12)] transition-shadow duration-300"
+                      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-5 hover:shadow-[0_4px_24px_rgba(201,168,76,0.12)] transition-shadow duration-300"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="min-w-0">
@@ -797,7 +797,7 @@ export default function AIEmployeePage() {
               ) : auditEntries.length === 0 ? (
                 <EmptyState icon="📜" message="No audit entries found" />
               ) : (
-                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -860,7 +860,7 @@ export default function AIEmployeePage() {
               exit={{ opacity: 0, y: -10 }}
             >
               {/* Sub-tabs */}
-              <div className="flex gap-1 mb-6 bg-white rounded-xl p-1 shadow-[0_1px_8px_rgba(183,110,121,0.05)] w-fit">
+              <div className="flex gap-1 mb-6 bg-white rounded-xl p-1 shadow-[0_1px_8px_rgba(201,168,76,0.05)] w-fit">
                 {(["clients", "finance", "projects"] as MemoryTab[]).map(
                   (mt) => (
                     <button
@@ -868,7 +868,7 @@ export default function AIEmployeePage() {
                       onClick={() => setMemTab(mt)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 capitalize ${
                         memTab === mt
-                          ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(183,110,121,0.3)]"
+                          ? "bg-rose-gold text-white shadow-[0_4px_12px_rgba(201,168,76,0.3)]"
                           : "text-dark/50 hover:text-dark hover:bg-beige/50"
                       }`}
                     >
@@ -969,14 +969,14 @@ export default function AIEmployeePage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 mb-6"
+                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 mb-6"
                 >
                   <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg mb-4">
                     Add New Product
                   </h3>
                   <form onSubmit={handleTriggerProduct} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input name="name" placeholder="Product Name" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
-                    <input name="price" type="number" placeholder="Price (₹)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="price" type="number" placeholder="Price (Rs.)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
                     <input name="description" placeholder="Description" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30 sm:col-span-2" />
                     <input name="category_id" type="number" placeholder="Category ID" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
                     <input name="stock" type="number" placeholder="Stock (default 50)" className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
@@ -1002,14 +1002,14 @@ export default function AIEmployeePage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 mb-6"
+                  className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 mb-6"
                 >
                   <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg mb-4">
                     Update Price
                   </h3>
                   <form onSubmit={handleTriggerPriceUpdate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input name="product_id" type="number" placeholder="Product ID" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
-                    <input name="new_price" type="number" placeholder="New Price (₹)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
+                    <input name="new_price" type="number" placeholder="New Price (Rs.)" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30" />
                     <input name="reason" placeholder="Reason for change" required className="border border-blush rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-gold/30 sm:col-span-2" />
                     <div className="sm:col-span-2 flex gap-3">
                       <button type="submit" disabled={triggerLoading} className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50">
@@ -1052,7 +1052,7 @@ export default function AIEmployeePage() {
                     />
                     <StatCard
                       label="Revenue"
-                      value={`₹${ecomStats.orders.revenue.toLocaleString()}`}
+                      value={`Rs.${ecomStats.orders.revenue.toLocaleString()}`}
                       subtitle="Total revenue"
                       icon="💰"
                       trend={`${ecomStats.orders.completed} completed`}
@@ -1095,7 +1095,7 @@ export default function AIEmployeePage() {
                           { label: "Total Orders", value: ecomStats.orders.total, color: "text-dark" },
                           { label: "Pending", value: ecomStats.orders.pending, color: "text-amber-600" },
                           { label: "Completed", value: ecomStats.orders.completed, color: "text-green-600" },
-                          { label: "Total Revenue", value: `₹${ecomStats.orders.revenue.toLocaleString()}`, color: "text-emerald-600" },
+                          { label: "Total Revenue", value: `Rs.${ecomStats.orders.revenue.toLocaleString()}`, color: "text-emerald-600" },
                         ].map((m) => (
                           <div key={m.label} className="flex items-center justify-between py-2 border-b border-blush/30 last:border-0">
                             <span className="text-sm text-dark/50">{m.label}</span>
@@ -1145,7 +1145,7 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 relative overflow-hidden group hover:shadow-[0_4px_24px_rgba(183,110,121,0.12)] transition-shadow duration-300"
+      className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 relative overflow-hidden group hover:shadow-[0_4px_24px_rgba(201,168,76,0.12)] transition-shadow duration-300"
     >
       <div
         className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
@@ -1188,7 +1188,7 @@ function ChartCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 ${className}`}
+      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 ${className}`}
     >
       <div className="mb-4">
         <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg">
@@ -1211,7 +1211,7 @@ function MiniStat({
   color: string;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-[0_1px_8px_rgba(183,110,121,0.05)] p-4 text-center">
+    <div className="bg-white rounded-xl shadow-[0_1px_8px_rgba(201,168,76,0.05)] p-4 text-center">
       <p className="text-xs text-dark/40 mb-1">{label}</p>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
@@ -1263,7 +1263,7 @@ function QueuePipeline({
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(183,110,121,0.06)] p-6 mb-8">
+    <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(201,168,76,0.06)] p-6 mb-8">
       <h3 className="font-[family-name:var(--font-heading)] font-bold text-dark text-lg mb-1">
         Queue Pipeline
       </h3>

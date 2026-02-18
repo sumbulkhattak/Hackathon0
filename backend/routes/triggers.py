@@ -75,7 +75,7 @@ async def trigger_order(
     for item in order.items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
         product_name = product.name if product else f"Product #{item.product_id}"
-        items_lines += f"| {product_name} | {item.quantity} | ₹{item.price:,.0f} | ₹{item.price * item.quantity:,.0f} |\n"
+        items_lines += f"| {product_name} | {item.quantity} | Rs.{item.price:,.0f} | Rs.{item.price * item.quantity:,.0f} |\n"
 
     content = f"""# New Order Task
 
@@ -91,7 +91,7 @@ async def trigger_order(
 | **Email** | {order.email} |
 | **Phone** | {order.phone} |
 | **Address** | {order.address}, {order.city} |
-| **Total** | ₹{order.total:,.0f} |
+| **Total** | Rs.{order.total:,.0f} |
 | **Order Status** | {order.status} |
 
 ## Order Items
@@ -129,7 +129,7 @@ async def trigger_order(
     audit.append_daily_log(
         source="trigger/order",
         action="Task Created",
-        details=f"ORDER-{order.id} — {order.customer_name} — ₹{order.total:,.0f}",
+        details=f"ORDER-{order.id} — {order.customer_name} — Rs.{order.total:,.0f}",
         status="PENDING",
     )
 
@@ -173,14 +173,14 @@ async def trigger_inquiry(
         order = db.query(Order).filter(Order.id == req.order_id).first()
         if order:
             context_lines += f"\n### Related Order\n\n"
-            context_lines += f"- **Order #{order.id}** — ₹{order.total:,.0f} — Status: {order.status}\n"
+            context_lines += f"- **Order #{order.id}** — Rs.{order.total:,.0f} — Status: {order.status}\n"
             context_lines += f"- Placed: {order.created_at}\n"
 
     if req.product_id:
         product = db.query(Product).filter(Product.id == req.product_id).first()
         if product:
             context_lines += f"\n### Related Product\n\n"
-            context_lines += f"- **{product.name}** — ₹{product.price:,.0f}\n"
+            context_lines += f"- **{product.name}** — Rs.{product.price:,.0f}\n"
             context_lines += f"- Stock: {product.stock} units\n"
             context_lines += f"- Category: {product.category.name if product.category else 'N/A'}\n"
 
@@ -422,7 +422,7 @@ async def trigger_product(
 | **Created** | {now.strftime("%Y-%m-%d %H:%M:%S UTC")} |
 | **Product Name** | {req.name} |
 | **Description** | {req.description} |
-| **Price** | ₹{req.price:,.0f} |
+| **Price** | Rs.{req.price:,.0f} |
 | **Category** | {category_name} |
 | **Category ID** | {req.category_id} |
 | **Stock** | {req.stock} |
@@ -450,7 +450,7 @@ async def trigger_product(
     )
     audit.append_daily_log(
         source="trigger/product", action="Task Created",
-        details=f"PRODUCT-ADD — {req.name} — ₹{req.price:,.0f}", status="PENDING",
+        details=f"PRODUCT-ADD — {req.name} — Rs.{req.price:,.0f}", status="PENDING",
     )
     result = {"status": "task_created", "trigger": "product", "task_file": filename, "path": filepath}
     if auto_process:
@@ -492,9 +492,9 @@ async def trigger_price_update(
 | **Created** | {now.strftime("%Y-%m-%d %H:%M:%S UTC")} |
 | **Product ID** | {product.id} |
 | **Product Name** | {product.name} |
-| **Current Price** | ₹{product.price:,.0f} |
-| **New Price** | ₹{req.new_price:,.0f} |
-| **Change** | {"+" if req.new_price > product.price else ""}₹{req.new_price - product.price:,.0f} |
+| **Current Price** | Rs.{product.price:,.0f} |
+| **New Price** | Rs.{req.new_price:,.0f} |
+| **Change** | {"+" if req.new_price > product.price else ""}Rs.{req.new_price - product.price:,.0f} |
 | **Reason** | {req.reason} |
 
 ## Action Required
@@ -518,7 +518,7 @@ async def trigger_price_update(
     )
     audit.append_daily_log(
         source="trigger/price-update", action="Task Created",
-        details=f"PRICE-UPDATE — {product.name}: ₹{product.price:,.0f} → ₹{req.new_price:,.0f}", status="PENDING",
+        details=f"PRICE-UPDATE — {product.name}: Rs.{product.price:,.0f} → Rs.{req.new_price:,.0f}", status="PENDING",
     )
     result = {"status": "task_created", "trigger": "price-update", "task_file": filename, "path": filepath}
     if auto_process:

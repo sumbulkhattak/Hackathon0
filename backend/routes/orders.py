@@ -60,7 +60,7 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     db.refresh(db_order)
 
     # Log order trigger
-    logger.info(f"[HOOK] Order trigger: Order #{db_order.id} placed, total ₹{total}")
+    logger.info(f"[HOOK] Order trigger: Order #{db_order.id} placed, total Rs.{total}")
 
     # Log inventory alerts
     for lsp in low_stock_products:

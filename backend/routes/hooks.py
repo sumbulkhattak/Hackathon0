@@ -47,7 +47,7 @@ async def hook_order_trigger(payload: HookPayload, db: Session = Depends(get_db)
 | **Order ID** | #{order_id} |
 | **Customer** | {data.get('customer_name', 'Unknown')} |
 | **Email** | {data.get('email', 'N/A')} |
-| **Total** | ₹{data.get('total', 0):,.0f} |
+| **Total** | Rs.{data.get('total', 0):,.0f} |
 | **Items** | {data.get('items_count', 'N/A')} |
 | **Source** | webhook/order-trigger |
 
